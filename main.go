@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/tidwall/gjson"
@@ -23,7 +22,8 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	params := request.QueryStringParameters
 
 	if SlackExpectedToken != params["token"] {
-		log.Fatal("Slack token mismatch")
+		log.Print(params["token"])
+    log.Print("Warning: Slack token mismatch")
 	}
 
 	log.Printf("Processing request %s", request.RequestContext.RequestID)
@@ -31,8 +31,8 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	userOnCall := gjson.Get(string(callPagerdutyOnCall()), "oncalls.#.user.name").Array()[0]
 
 	return events.APIGatewayProxyResponse{
-		Body:       userOnCall.String() + " is on call right now!",
-		StatusCode: 200,
+	  response_type: "in_channel",
+		text: userOnCall.String() + " is on call right now!",
 	}, nil
 }
 
